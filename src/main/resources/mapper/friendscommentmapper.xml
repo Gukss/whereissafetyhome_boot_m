@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.ssafy.happyhouse.board.repository.FriendsCommentDAO">
+
+  <insert id="writeComment" parameterType="FriendsCommentDto">
+    insert into friends_board_comment(member_no, member_name, comment_text, register_time, friends_article_no)
+    values(#{memberNo}, #{memberName}, #{commentText}, now(), #{friendsArticleNo})
+  </insert>
+  
+  <select id="listComment" resultType="FriendsCommentDto">
+    select friends_board_comment_no friendsBoardCommentNo, member_no memberNo, member_name memberName , comment_text commentText, register_time registerTime, friends_article_no friendsArticleNo
+    from  friends_board_comment
+    where friends_article_no = #{friendsArticleNo}
+  </select>
+
+<!--  comment는 하나만 받아올 일이 없다.-->
+<!--   <select id="getComment" parameterType="string" resultType="FriendsCommentDto">-->
+<!--    select * from friends_board_comment where friends_board_comment_no = #{friendsCommentNo}-->
+<!--  </select> -->
+  
+<!--  <update id="updateViews" parameterType="FriendsCommentDto">-->
+<!--    update friends_board set views = views+1-->
+<!--    where friends_article_no=#{friendsArticleNo}-->
+<!--  </update>-->
+  
+  <update id="modifyComment" parameterType="FriendsCommentDto">
+    update friends_board_comment set comment_text=#{commentText}
+    where friends_board_comment_no=#{friendsBoardCommentNo}
+  </update>
+ 
+  <delete id="deleteComment" parameterType="int">
+   	delete from friends_board_comment where friends_board_comment_no=#{friendsBoardCommentNo}
+  </delete>
+  
+</mapper>

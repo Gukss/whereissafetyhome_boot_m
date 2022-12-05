@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.ssafy.happyhouse.board.repository.FriendsBoardDAO">
+  
+<!--   <resultMap type="FriendsArticleDto" id="faDto">
+		<result column="friends_article_no" property="friendsArticleNo"/>
+		<result column="member_no" property="memberNo"/>
+		<result column="member_id" property="memberId"/>
+		<result column="title" property="title"/>
+		<result column="content" property="content"/>
+		<result column="views" property="views"/>
+		<result column="register_time" property="registerTime"/>
+	</resultMap> -->
+
+  <insert id="writeArticle" parameterType="FriendsArticleDto">
+    insert into friends_board(member_no, member_name, title, content, views, register_time)
+    values (#{memberNo}, #{memberName}, #{title}, #{content}, 0, now())
+  </insert>
+  
+   <select id="getArticle" parameterType="int" resultType="FriendsArticleDto">
+    select friends_article_no friendsArticleNo, member_no memberNo, member_name memberName, title, content, views, register_time registerTime
+    from friends_board 
+    where friends_article_no = #{friendsArticleNo}
+  </select> 
+  
+  <update id="updateViews" parameterType="FriendsArticleDto">
+    update friends_board set views = views+1
+    where friends_article_no=#{friendsArticleNo}
+  </update>
+  
+  <update id="modifyArticle" parameterType="FriendsArticleDto">
+    update friends_board set title=#{title}, content=#{content}
+    where friends_article_no=#{friendsArticleNo}
+  </update>
+ 
+  <delete id="deleteArticle" parameterType="int">
+   	delete from friends_board where friends_article_no=#{friendsArticleNo}
+  </delete>
+  
+  	<sql id="search">
+		<if test="word != null and word != ''">
+			<if test="key == 'title'">
+				and title like concat('%', #{word}, '%')
+			</if>
+			<if test="key != 'title'">
+				and ${key} = #{word}
+			</if>
+		</if>
+	</sql>
+	
+  	<select id="getTotalArticleCount" parameterType="map" resultType="int">
+		select count(friends_article_no)
+		from friends_board
+		<where>
+			<include refid="search"></include>
+		</where>
+	</select>
+    
+  <select id="listArticle" parameterType="map" resultType="FriendsArticleDto">
+    select friends_article_no friendsArticleNo, member_no memberNo, member_name memberName, title, content, views, register_time registerTime
+    from friends_board
+    <include refid="search"></include>
+	order by friends_article_no desc
+	limit #{start}, #{listsize}
+  </select>
+</mapper>

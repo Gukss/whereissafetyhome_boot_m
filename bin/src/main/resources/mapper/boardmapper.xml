@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.happyhouse.board.repository.AptSearchDao">
+
+    <resultMap type="AptInfoDto" id="aptInfoDto">
+        <result column="sido" property="sido"/>
+        <result column="gugun" property="gugun"/>
+        <result column="dong" property="dong"/>
+        <result column="year" property="year"/>
+        <result column="month" property="month"/>
+    </resultMap>
+
+    <select id="AllSearch" parameterType="aptInfoDto" resultType="AptResultInfoDto">
+        select dongcode.sidoName sidoName, dongcode.gugunName gugunName, dongcode.dongName dongName, houseinfo.apartmentName aptName, houseinfo.lat lat, houseinfo.lng lng, housedeal.dealAmount dealAmount, housedeal.area area, housedeal.floor floor, houseinfo.roadName roadName, houseinfo.roadNameBonbun roadNameBonbun, houseinfo.roadNameBubun roadNameBubun
+        from dongcode
+        inner join houseinfo on dongcode.dongCode = houseinfo.dongCode
+        inner join housedeal on housedeal.aptCode = houseinfo.aptCode
+        where dongcode.sidoName = #{sido} and dongcode.gugunName=#{gugun} and dongcode.dongname=#{dong} and housedeal.dealYear = #{year} and housedeal.dealMonth = #{month}
+        order by houseinfo.apartmentName ASC
+        <!--limit 30-->
+    </select>
+
+    <select id="SidoNameList" resultType="string">
+        select distinct(sidoName)
+        from dongcode
+        where sidoName is not NULL order by sidoName ASC
+    </select>
+
+    <select id="gugunNameList" parameterType="string" resultType="string">
+        select distinct(gugunName)
+        from dongcode
+        where sidoName=#{sidoName} and gugunName is not NULL and gugunName != '창원시' order by gugunName ASC
+    </select>
+
+    <select id="dongNameList" parameterType="java.util.HashMap" resultType="string">
+        select distinct(dongName)
+        from dongcode
+        where sidoName=#{sidoName} and gugunName=#{gugunName} and dongName is not NULL order by dongName ASC
+    </select>
+
+    <insert id="insertInterest" parameterType="java.util.HashMap">
+        insert into interest_area(member_id,sidoName,gugunName,dongName)
+        values(#{id},#{sidoName},#{gugunName},#{dongName})
+    </insert>
+
+    <select id="checkInterest" parameterType="java.util.HashMap" resultType="InterestDto">
+        select *
+        from interest_area
+        where member_id = #{id} and sidoName = #{sidoName} and gugunName = #{gugunName} and dongName = #{dongName}
+    </select>
+
+    <select id="AllInterest" parameterType="string" resultType="InterestDto">
+        select id,sidoName,gugunName,dongName
+        from interest_area
+        where member_id = #{id} order by sidoName ASC
+    </select>
+
+    <delete id="deleteInterest" parameterType="long">
+        delete from interest_area
+        where id= #{id}
+    </delete>
+
+    <select id="selectInterestApt" parameterType="java.util.HashMap" resultType="InterestAptInfoDto">
+        select houseinfo.apartmentName aptName, housedeal.area aptArea, housedeal.floor aptFloor, housedeal.dealAmount aptPrice, houseinfo.lat aptLat, houseinfo.lng aptLng
+        from dongcode
+        inner join houseinfo on dongcode.dongCode = houseinfo.dongCode
+        inner join housedeal on housedeal.aptCode = houseinfo.aptCode
+        where dongcode.sidoName = #{sidoName} and dongcode.gugunName=#{gugunName} and dongcode.dongname=#{dongName}<!-- and housedeal.dealYear <= ? and housedeal.dealYear >= ?-->
+        <!--limit 20-->
+    </select>
+</mapper>
